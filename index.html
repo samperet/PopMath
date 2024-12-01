@@ -247,7 +247,7 @@
 
     <audio id="correct-sound" src="correct.mp3"></audio>
     <audio id="incorrect-sound" src="incorrect.mp3"></audio>
-    <audio id="nyan-cat-audio" src="https://github.com/samperet/PopMath/blob/main/Nyan%20Cat.mp3" loop></audio>
+    <audio id="nyan-cat-audio" src="https://github.com/samperet/PopMath/raw/refs/heads/main/Nyan%20Cat.mp3" loop></audio>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
     <script>
         const splashDiv = document.getElementById('splash');
@@ -255,19 +255,21 @@
         const mainContainer = document.getElementById('main-container');
         const goalValueSpan = document.getElementById('goal-value');
         const nyanCatAudio = document.getElementById('nyan-cat-audio');
+        let score = 0;
+        let goal = null;
 
         enterBtn.addEventListener('click', enterApp);
 
         function enterApp() {
             splashDiv.classList.add('hidden');
             mainContainer.classList.remove('hidden');
-            nyanCatAudio.play();
-            startBouncingNyanCat();
+            goal = parseInt(document.getElementById('goal').value) || null;
         }
 
-        function startBouncingNyanCat() {
+        function showNyanCatCelebration() {
+            nyanCatAudio.play();
             const nyanCatImage = document.createElement('img');
-            nyanCatImage.src = 'https://github.com/samperet/PopMath/blob/main/Nyan%20Cat.gif';
+            nyanCatImage.src = 'https://github.com/samperet/PopMath/blob/main/Nyan%20Cat.gif?raw=true';
             nyanCatImage.classList.add('bouncing-nyan-cat');
             document.body.appendChild(nyanCatImage);
 
@@ -299,6 +301,14 @@
             }
 
             moveNyanCat();
+        }
+
+        function updateScore() {
+            score++;
+            document.getElementById('score').textContent = score;
+            if (goal && score >= goal) {
+                showNyanCatCelebration();
+            }
         }
     </script>
 </body>
