@@ -1,41 +1,217 @@
 <!DOCTYPE html>
-<html lang="en" >
-<head>
-  <meta charset="UTF-8">
-  <title>Pop Math</title>
-  <link rel="stylesheet" href="./style.css">
-
-</head>
-<body>
-<!-- partial:index.partial.html -->
-<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Pop Math</title>
-    <!-- Include Google Fonts for retro typography -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Pacifico&display=swap" rel="stylesheet">
-    <!-- Include Font Awesome for the settings gear icon -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" crossorigin="anonymous">
-    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            background-color: #f2eecb;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        
+        .splash {
+            background-color: #f2eecb;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+        
+        .splash h1 {
+            font-size: 40px;
+            margin-bottom: 10px;
+            font-family: 'Pacifico', cursive;
+            transform: rotate(-5deg);
+            background: linear-gradient(90deg, #ff6f61, #ffcc00, #ff6f61);
+            background-size: 200% 200%;
+            animation: textGradientAnimation 5s infinite;
+            color: transparent;
+            background-clip: text;
+            -webkit-background-clip: text;
+        }
+        
+        .splash button {
+            padding: 15px 30px;
+            font-size: 20px;
+            cursor: pointer;
+            background-color: #ffcc00;
+            border: none;
+            border-radius: 10px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+        }
+        
+        .settings-icon {
+            text-align: right;
+            padding: 10px;
+        }
+        
+        .settings-icon i {
+            font-size: 24px;
+            cursor: pointer;
+            color: #333;
+        }
+        
+        .settings {
+            background-color: #fff8dc;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .settings label {
+            display: inline-block;
+            width: 180px;
+            margin-bottom: 10px;
+        }
+        
+        .settings-ok-btn {
+            margin-top: 15px;
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #ffcc00;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+        
+        .settings-ok-btn:hover {
+            background-color: #ffb700;
+        }
+        
+        .quiz {
+            background-color: #fff8dc;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        
+        .question {
+            font-size: 28px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .choices {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .choice-btn {
+            padding: 10px 20px;
+            font-size: 22px;
+            cursor: pointer;
+            background-color: #ffcc00;
+            border: none;
+            border-radius: 15px;
+            margin: 5px;
+        }
+        
+        .choice-btn:hover {
+            background-color: #ffb700;
+        }
+        
+        .score {
+            font-size: 18px;
+            text-align: right;
+        }
+        
+        .next-btn {
+            margin-top: 20px;
+            background-color: #ff6f61;
+            border: none;
+            border-radius: 10px;
+            color: #fff;
+        }
+        
+        .next-btn:hover {
+            background-color: #ff5a4d;
+        }
+        
+        .progress-container {
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        
+        .progress-bar {
+            position: relative;
+            width: 100%;
+            height: 60px;
+            background-color: #ddd;
+            border-radius: 30px;
+            overflow: hidden;
+        }
+        
+        .rainbow-fill {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 0%;
+            background-image: url('https://i.ibb.co/xCKFLZB/rainbow.png');
+            background-repeat: repeat-x;
+            background-size: contain;
+            transition: width 0.5s ease-in-out;
+        }
+        
+        .nyan-cat {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 60px;
+            transition: left 0.5s ease-in-out;
+        }
+        
+        .goal-label {
+            text-align: center;
+            font-size: 16px;
+            margin-top: 5px;
+        }
+        
+        @keyframes textGradientAnimation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-30px); }
+        }
+
+        .bouncing-nyan-cat {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            animation: bounce 1s infinite;
+        }
+    </style>
 </head>
 <body>
-    <!-- Splash Page -->
     <div id="splash" class="splash">
         <h1>Pop Math</h1>
-        <!-- Subtle "Peret Productions" text -->
         <p class="producer">Peret Productions</p>
         <button id="enter-btn">Start</button>
     </div>
 
-    <!-- Main Container -->
     <div class="container hidden" id="main-container">
-        <!-- Settings Gear Icon -->
         <div class="settings-icon">
             <i class="fas fa-cog" id="settings-icon"></i>
         </div>
 
-        <!-- Settings Panel -->
         <div id="settings" class="settings hidden">
             <h2>Settings</h2>
             <label for="low">Low Number:</label>
@@ -49,26 +225,19 @@
             <input type="checkbox" id="subtraction"> Subtraction<br>
             <input type="checkbox" id="multiplication" checked> Multiplication<br>
             <input type="checkbox" id="division"> Division<br>
-            <!-- Goal Field -->
             <label for="goal">Goal (number of correct answers):</label>
             <input type="number" id="goal" min="1"><br>
-            <!-- OK Button -->
             <button id="settings-ok-btn" class="settings-ok-btn">OK</button>
         </div>
 
-        <!-- Quiz Area -->
         <div id="quiz" class="quiz">
             <div class="score">Score: <span id="score">0</span></div>
             <div id="question" class="question"></div>
             <div id="choices" class="choices"></div>
             <button id="next-btn" class="next-btn hidden">Next Question</button>
-
-            <!-- Progress Bar at the Bottom -->
             <div id="progress-container" class="progress-container hidden">
                 <div id="progress-bar" class="progress-bar">
-                    <!-- Rainbow Fill -->
                     <div id="rainbow-fill" class="rainbow-fill"></div>
-                    <!-- Nyan Cat Image -->
                     <img id="nyan-cat" src="https://static.wikia.nocookie.net/the-pgm5-wiki/images/4/4a/Nyan-Cat-PNG-Transparent.png" alt="Nyan Cat" class="nyan-cat">
                 </div>
                 <div class="goal-label">Goal: <span id="goal-value">0</span></div>
@@ -76,19 +245,61 @@
         </div>
     </div>
 
-    <!-- Sound Effects -->
     <audio id="correct-sound" src="correct.mp3"></audio>
     <audio id="incorrect-sound" src="incorrect.mp3"></audio>
-
-    <!-- Include Confetti Library -->
+    <audio id="nyan-cat-audio" src="https://github.com/samperet/PopMath/blob/main/Nyan%20Cat.mp3" loop></audio>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <script>
+        const splashDiv = document.getElementById('splash');
+        const enterBtn = document.getElementById('enter-btn');
+        const mainContainer = document.getElementById('main-container');
+        const goalValueSpan = document.getElementById('goal-value');
+        const nyanCatAudio = document.getElementById('nyan-cat-audio');
 
-    <!-- Script -->
-    <script src="script.js"></script>
-</body>
-</html>
-<!-- partial -->
-  <script  src="./script.js"></script>
+        enterBtn.addEventListener('click', enterApp);
 
+        function enterApp() {
+            splashDiv.classList.add('hidden');
+            mainContainer.classList.remove('hidden');
+            nyanCatAudio.play();
+            startBouncingNyanCat();
+        }
+
+        function startBouncingNyanCat() {
+            const nyanCatImage = document.createElement('img');
+            nyanCatImage.src = 'https://github.com/samperet/PopMath/blob/main/Nyan%20Cat.gif';
+            nyanCatImage.classList.add('bouncing-nyan-cat');
+            document.body.appendChild(nyanCatImage);
+
+            let posX = 0;
+            let posY = 0;
+            let directionX = 1;
+            let directionY = 1;
+
+            function moveNyanCat() {
+                const maxX = window.innerWidth - nyanCatImage.width;
+                const maxY = window.innerHeight - nyanCatImage.height;
+
+                posX += directionX * 5;
+                posY += directionY * 5;
+
+                if (posX <= 0 || posX >= maxX) {
+                    directionX *= -1;
+                    nyanCatImage.style.transform = directionX === 1 ? 'scaleX(1)' : 'scaleX(-1)';
+                }
+
+                if (posY <= 0 || posY >= maxY) {
+                    directionY *= -1;
+                }
+
+                nyanCatImage.style.left = posX + 'px';
+                nyanCatImage.style.top = posY + 'px';
+
+                requestAnimationFrame(moveNyanCat);
+            }
+
+            moveNyanCat();
+        }
+    </script>
 </body>
 </html>
