@@ -260,10 +260,11 @@
 
         enterBtn.addEventListener('click', enterApp);
 
-        function enterApp() {
-            splashDiv.classList.add('hidden');
+        \$1splashDiv.classList.add('hidden');
             mainContainer.classList.remove('hidden');
-            goal = parseInt(document.getElementById('goal').value) || null;
+            resetGame();
+            goal = parseInt(document.getElementById('goal').value) || 1;
+            resetGame();
         }
 
         function showNyanCatCelebration() {
@@ -278,23 +279,8 @@
             let directionX = 1;
             let directionY = 1;
 
-            function moveNyanCat() {
-                const maxX = window.innerWidth - nyanCatImage.width;
-                const maxY = window.innerHeight - nyanCatImage.height;
-
-                posX += directionX * 5;
-                posY += directionY * 5;
-
-                if (posX <= 0 || posX >= maxX) {
-                    directionX *= -1;
-                    nyanCatImage.style.transform = directionX === 1 ? 'scaleX(1)' : 'scaleX(-1)';
-                }
-
-                if (posY <= 0 || posY >= maxY) {
-                    directionY *= -1;
-                }
-
-                nyanCatImage.style.left = posX + 'px';
+            \$1nyanCatImage.style.position = 'fixed';
+            nyanCatImage.style.pointerEvents
                 nyanCatImage.style.top = posY + 'px';
 
                 requestAnimationFrame(moveNyanCat);
@@ -305,6 +291,7 @@
 
         function updateScore() {
             score++;
+            updateProgressBar();
             document.getElementById('score').textContent = score;
             if (goal && score >= goal) {
                 showNyanCatCelebration();
