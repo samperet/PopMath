@@ -1,302 +1,218 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Pop Math</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Pacifico&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" crossorigin="anonymous">
-    <style>
-        body {
-            background-color: #f2eecb;
-            font-family: 'Courier New', Courier, monospace;
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-        }
-        
-        .splash {
-            background-color: #f2eecb;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-        }
-        
-        .splash h1 {
-            font-size: 40px;
-            margin-bottom: 10px;
-            font-family: 'Pacifico', cursive;
-            transform: rotate(-5deg);
-            background: linear-gradient(90deg, #ff6f61, #ffcc00, #ff6f61);
-            background-size: 200% 200%;
-            animation: textGradientAnimation 5s infinite;
-            color: transparent;
-            background-clip: text;
-            -webkit-background-clip: text;
-        }
-        
-        .splash button {
-            padding: 15px 30px;
-            font-size: 20px;
-            cursor: pointer;
-            background-color: #ffcc00;
-            border: none;
-            border-radius: 10px;
-        }
-        
-        .container {
-            max-width: 800px;
-            margin: auto;
-            padding: 20px;
-        }
-        
-        .settings-icon {
-            text-align: right;
-            padding: 10px;
-        }
-        
-        .settings-icon i {
-            font-size: 24px;
-            cursor: pointer;
-            color: #333;
-        }
-        
-        .settings {
-            background-color: #fff8dc;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-        }
-        
-        .settings label {
-            display: inline-block;
-            width: 180px;
-            margin-bottom: 10px;
-        }
-        
-        .settings-ok-btn {
-            margin-top: 15px;
-            padding: 10px 20px;
-            font-size: 16px;
-            background-color: #ffcc00;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-        }
-        
-        .settings-ok-btn:hover {
-            background-color: #ffb700;
-        }
-        
-        .quiz {
-            background-color: #fff8dc;
-            padding: 20px;
-            border-radius: 10px;
-        }
-        
-        .question {
-            font-size: 28px;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        
-        .choices {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-        
-        .choice-btn {
-            padding: 10px 20px;
-            font-size: 22px;
-            cursor: pointer;
-            background-color: #ffcc00;
-            border: none;
-            border-radius: 15px;
-            margin: 5px;
-        }
-        
-        .choice-btn:hover {
-            background-color: #ffb700;
-        }
-        
-        .score {
-            font-size: 18px;
-            text-align: right;
-        }
-        
-        .next-btn {
-            margin-top: 20px;
-            background-color: #ff6f61;
-            border: none;
-            border-radius: 10px;
-            color: #fff;
-        }
-        
-        .next-btn:hover {
-            background-color: #ff5a4d;
-        }
-        
-        .progress-container {
-            margin-top: 20px;
-            margin-bottom: 10px;
-        }
-        
-        .progress-bar {
-            position: relative;
-            width: 100%;
-            height: 60px;
-            background-color: #ddd;
-            border-radius: 30px;
-            overflow: hidden;
-        }
-        
-        .rainbow-fill {
-            position: absolute;
-            top: 0;
-            left: 0;
-            height: 100%;
-            width: 0%;
-            background-image: url('https://i.ibb.co/xCKFLZB/rainbow.png');
-            background-repeat: repeat-x;
-            background-size: contain;
-            transition: width 0.5s ease-in-out;
-        }
-        
-        .nyan-cat {
-            position: absolute;
-            top: 0;
-            left: 0;
-            height: 60px;
-            transition: left 0.5s ease-in-out;
-        }
-        
-        .goal-label {
-            text-align: center;
-            font-size: 16px;
-            margin-top: 5px;
-        }
-        
-        @keyframes textGradientAnimation {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-        
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-30px); }
-        }
+/* Retro Color Scheme */
+body {
+    background-color: #f2eecb;
+    font-family: 'Courier New', Courier, monospace;
+    margin: 0;
+    padding: 0;
+}
 
-        .bouncing-nyan-cat {
-            position: absolute;
-            width: 100px;
-            height: 100px;
-            animation: bounce 1s infinite;
-        }
-    </style>
-</head>
-<body>
-    <div id="splash" class="splash">
-        <h1>Pop Math</h1>
-        <p class="producer">Peret Productions</p>
-        <button id="enter-btn">Start</button>
-    </div>
+/* Splash Page */
+.splash {
+    background-color: #f2eecb;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
 
-    <div class="container hidden" id="main-container">
-        <div class="settings-icon">
-            <i class="fas fa-cog" id="settings-icon"></i>
-        </div>
+.splash h1 {
+    font-size: 60px;
+    margin-bottom: 10px;
+    font-family: 'Pacifico', cursive;
+    transform: rotate(-5deg);
+    background: linear-gradient(90deg, #ff6f61, #ffcc00, #ff6f61);
+    background-size: 200% 200%;
+    animation: textGradientAnimation 5s infinite;
+    color: transparent;
+    background-clip: text;
+    -webkit-background-clip: text;
+}
 
-        <div id="settings" class="settings hidden">
-            <h2>Settings</h2>
-            <label for="low">Low Number:</label>
-            <input type="number" id="low" value="1"><br>
-            <label for="high">High Number:</label>
-            <input type="number" id="high" value="10"><br>
-            <label for="negatives">Include Negatives:</label>
-            <input type="checkbox" id="negatives"><br>
-            <label>Question Types:</label><br>
-            <input type="checkbox" id="addition"> Addition<br>
-            <input type="checkbox" id="subtraction"> Subtraction<br>
-            <input type="checkbox" id="multiplication" checked> Multiplication<br>
-            <input type="checkbox" id="division"> Division<br>
-            <label for="goal">Goal (number of correct answers):</label>
-            <input type="number" id="goal" min="1"><br>
-            <button id="settings-ok-btn" class="settings-ok-btn">OK</button>
-        </div>
+.splash .producer {
+    font-size: 16px;
+    margin-bottom: 30px;
+    color: #555;
+    opacity: 0.7;
+    font-family: 'Courier New', Courier, monospace;
+}
 
-        <div id="quiz" class="quiz">
-            <div class="score">Score: <span id="score">0</span></div>
-            <div id="question" class="question"></div>
-            <div id="choices" class="choices"></div>
-            <button id="next-btn" class="next-btn hidden">Next Question</button>
-            <div id="progress-container" class="progress-container hidden">
-                <div id="progress-bar" class="progress-bar">
-                    <div id="rainbow-fill" class="rainbow-fill"></div>
-                    <img id="nyan-cat" src="https://static.wikia.nocookie.net/the-pgm5-wiki/images/4/4a/Nyan-Cat-PNG-Transparent.png" alt="Nyan Cat" class="nyan-cat">
-                </div>
-                <div class="goal-label">Goal: <span id="goal-value">0</span></div>
-            </div>
-        </div>
-    </div>
+@keyframes textGradientAnimation {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
 
-    <audio id="correct-sound" src="correct.mp3"></audio>
-    <audio id="incorrect-sound" src="incorrect.mp3"></audio>
-    <audio id="nyan-cat-audio" src="https://github.com/samperet/PopMath/raw/refs/heads/main/Nyan%20Cat.mp3" loop></audio>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
-    <script>
-        const splashDiv = document.getElementById('splash');
-        const enterBtn = document.getElementById('enter-btn');
-        const mainContainer = document.getElementById('main-container');
-        const goalValueSpan = document.getElementById('goal-value');
-        const nyanCatAudio = document.getElementById('nyan-cat-audio');
-        let score = 0;
-        let goal = null;
+.splash button {
+    padding: 15px 30px;
+    font-size: 20px;
+    cursor: pointer;
+    background-color: #ffcc00;
+    border: none;
+    border-radius: 10px;
+}
 
-        enterBtn.addEventListener('click', enterApp);
+/* Main Container */
+.container {
+    max-width: 800px;
+    margin: auto;
+    padding-top: 20px;
+}
 
-        \$1splashDiv.classList.add('hidden');
-            mainContainer.classList.remove('hidden');
-            resetGame();
-            goal = parseInt(document.getElementById('goal').value) || 1;
-            resetGame();
-        }
+/* Settings Icon */
+.settings-icon {
+    text-align: right;
+    padding: 10px;
+}
 
-        function showNyanCatCelebration() {
-            nyanCatAudio.play();
-            const nyanCatImage = document.createElement('img');
-            nyanCatImage.src = 'https://github.com/samperet/PopMath/blob/main/Nyan%20Cat.gif?raw=true';
-            nyanCatImage.classList.add('bouncing-nyan-cat');
-            document.body.appendChild(nyanCatImage);
+.settings-icon i {
+    font-size: 24px;
+    cursor: pointer;
+    color: #333;
+}
 
-            let posX = 0;
-            let posY = 0;
-            let directionX = 1;
-            let directionY = 1;
+/* Settings Panel */
+.settings {
+    background-color: #fff8dc;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
 
-            \$1nyanCatImage.style.position = 'fixed';
-            nyanCatImage.style.pointerEvents
-                nyanCatImage.style.top = posY + 'px';
+.settings label {
+    display: inline-block;
+    width: 200px;
+}
 
-                requestAnimationFrame(moveNyanCat);
-            }
+/* OK Button in Settings */
+.settings-ok-btn {
+    margin-top: 15px;
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #ffcc00;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+}
 
-            moveNyanCat();
-        }
+.settings-ok-btn:hover {
+    background-color: #ffb700;
+}
 
-        function updateScore() {
-            score++;
-            updateProgressBar();
-            document.getElementById('score').textContent = score;
-            if (goal && score >= goal) {
-                showNyanCatCelebration();
-            }
-        }
-    </script>
-</body>
-</html>
+/* Quiz Area */
+.quiz {
+    background-color: #fff8dc;
+    padding: 20px;
+    border-radius: 10px;
+}
+
+.label {
+    font-size: 18px;
+}
+
+input[type="number"] {
+    width: 60px;
+    margin-bottom: 10px;
+}
+
+button {
+    display: block;
+    margin: 20px auto;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.hidden {
+    display: none;
+}
+
+.question {
+    font-size: 28px;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.choices {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.choice-btn {
+    padding: 10px 20px;
+    font-size: 22px;
+    cursor: pointer;
+    background-color: #ffcc00;
+    border: none;
+    border-radius: 15px;
+    margin: 5px;
+}
+
+.choice-btn:hover {
+    background-color: #ffb700;
+}
+
+.score {
+    font-size: 18px;
+    text-align: right;
+}
+
+.next-btn {
+    margin-top: 20px;
+    background-color: #ff6f61;
+    border: none;
+    border-radius: 10px;
+    color: #fff;
+}
+
+.next-btn:hover {
+    background-color: #ff5a4d;
+}
+
+/* Progress Bar */
+.progress-container {
+    margin-top: 20px;
+    margin-bottom: 10px;
+}
+
+.progress-bar {
+    position: relative;
+    width: 100%;
+    height: 60px; /* Increased height to match Nyan Cat */
+    background-color: #ddd;
+    border-radius: 30px;
+    overflow: hidden;
+}
+
+.rainbow-fill {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 0%; /* Initial width is 0% */
+    background-image: url('https://i.ibb.co/xCKFLZB/rainbow.png');
+    background-repeat: repeat-x;
+    background-size: contain;
+    transition: width 0.5s ease-in-out; /* Added transition for smooth appearance */
+    z-index: 1;
+}
+
+.nyan-cat {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 60px; /* Same height as progress bar */
+    transition: left 0.5s ease-in-out;
+    z-index: 2;
+}
+
+.goal-label {
+    text-align: center;
+    font-size: 16px;
+    margin-top: 5px;
+}
+
+/* Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
