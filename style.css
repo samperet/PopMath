@@ -245,20 +245,29 @@ button {
 
 /* Mobile Specific Styling */
 @media (max-width: 768px) {
-    button {
-        padding: 15px 30px;
-        font-size: 20px;
+    body {
+        font-size: 16px; /* Slightly smaller base font size */
+    }
+
+    .question {
+        font-size: 24px; /* Slightly smaller for mobile */
+        word-wrap: break-word;
+        max-width: 90%; /* Ensure the question fits within the screen */
+        margin: 0 auto 20px;
+    }
+
+    .choices {
+        display: flex;
+        flex-direction: column; /* Stack buttons vertically */
+        align-items: center;
+        gap: 15px;
     }
 
     .choice-btn {
+        width: 90%; /* Almost full screen width */
+        font-size: 20px; /* Larger for easy tapping */
         padding: 20px;
-        font-size: 22px;
-        margin: 10px;
-    }
-
-    .next-btn, .settings-ok-btn {
-        padding: 14px 28px;
-        font-size: 20px;
+        border-radius: 15px;
     }
 
     .settings {
@@ -276,13 +285,35 @@ button {
 
 /* Very Small Devices */
 @media (max-width: 480px) {
+    body {
+        font-size: 14px; /* Slightly smaller for very small screens */
+    }
+
+    .question {
+        font-size: 20px; /* Adjust equation text size for very small screens */
+        max-width: 85%; /* Ensure it doesn't touch edges */
+    }
+
+    .choices {
+        gap: 10px; /* Smaller gaps between buttons */
+    }
+
     .choice-btn {
-        font-size: 20px;
-        padding: 15px;
+        width: 95%; /* Full width minus small padding */
+        font-size: 18px;
+        padding: 18px;
     }
 
     .next-btn, .settings-ok-btn {
-        font-size: 18px;
+        font-size: 16px;
         padding: 12px 20px;
+    }
+
+    .progress-bar {
+        height: 45px;
+    }
+
+    .nyan-cat {
+        height: 45px;
     }
 }
