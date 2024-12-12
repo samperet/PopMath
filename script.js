@@ -25,7 +25,7 @@ let low = 1,
 let questionTypes = ['multiplication']; // Only multiplication by default
 let currentQuestion;
 let includeNegatives = false;
-let goal = null; // Goal for number of correct answers
+let goal = 10; // Default goal is now 10
 
 // Event Listeners
 enterBtn.addEventListener('click', enterApp);
@@ -44,7 +44,6 @@ function enterApp() {
 
 function toggleSettings() {
     settingsDiv.classList.toggle('hidden');
-    // No longer update settings here
 }
 
 function closeSettings() {
@@ -118,7 +117,7 @@ function updateSettings() {
         document.getElementById('goal').value = goal;
     } else {
         const goalInput = document.getElementById('goal').value;
-        goal = goalInput ? parseInt(goalInput) : null;
+        goal = goalInput ? parseInt(goalInput) : 10; // Default to 10 if no input
     }
 
     if (goal && goal > 0) {
@@ -142,7 +141,6 @@ function generateQuestion() {
     nextBtn.classList.add('hidden');
     choicesDiv.innerHTML = '';
 
-    // Generate random numbers
     let num1 = getRandomInt(low, high, includeNegatives);
     let num2 = getRandomInt(low, high, includeNegatives);
     let operation = questionTypes[Math.floor(Math.random() * questionTypes.length)];
@@ -152,14 +150,12 @@ function generateQuestion() {
     if (!includeNegatives) {
         switch (operation) {
             case 'subtraction':
-                // Ensure num1 >= num2 to avoid negative results
                 if (num1 < num2) {
                     [num1, num2] = [num2, num1]; // Swap values
                 }
                 break;
             case 'division':
-                // Ensure num1 is a multiple of num2 to get integer results
-                num2 = num2 === 0 ? 1 : num2; // Avoid division by zero
+                num2 = num2 === 0 ? 1 : num2;
                 num1 = num1 * num2;
                 break;
         }
@@ -179,22 +175,18 @@ function generateQuestion() {
             correctAnswer = num1 * num2;
             break;
         case 'division':
-            // Ensure division is valid
             while (num2 === 0) {
                 num2 = getRandomInt(low, high, includeNegatives);
             }
             correctAnswer = num1 / num2;
             questionText = `${num1} ÷ ${num2}`;
-            // Limit decimal places for division results
             if (!Number.isInteger(correctAnswer)) {
                 correctAnswer = correctAnswer.toFixed(2);
             }
             break;
     }
 
-    // Ensure correctAnswer is not negative when negatives are not included
     if (!includeNegatives && correctAnswer < 0) {
-        // Regenerate the question
         generateQuestion();
         return;
     }
@@ -206,7 +198,6 @@ function generateQuestion() {
 
     questionDiv.textContent = questionText;
 
-    // Generate choices
     let choices = generateChoices(correctAnswer);
     choices.forEach(choice => {
         const btn = document.createElement('button');
@@ -232,17 +223,12 @@ function selectAnswer(e) {
         score++;
         scoreSpan.textContent = score;
         correctSound.play();
-        // Update progress bar if goal is set
         if (goal && goal > 0) {
             updateProgressBar();
-            // Check if goal is reached
             if (score >= goal) {
-                // Show a celebration or message
-                // Pop up the specified video
                 showGoalVideo();
             }
         }
-        // Confetti effect
         confetti({
             particleCount: 100,
             spread: 70,
@@ -270,14 +256,12 @@ function generateChoices(correctAnswer) {
 }
 
 function generateMisconception(correctAnswer) {
-    // Generate a wrong answer based on common misconceptions
     let errorMargin = getRandomInt(1, 5, false);
     let wrongAnswer;
     if (typeof correctAnswer === 'number') {
         wrongAnswer =
             parseFloat(correctAnswer) +
             errorMargin * (Math.random() < 0.5 ? -1 : 1);
-        // Limit decimal places for division results
         wrongAnswer = Number.isInteger(correctAnswer)
             ? wrongAnswer
             : parseFloat(wrongAnswer.toFixed(2));
@@ -301,35 +285,24 @@ function shuffleArray(array) {
     return array.sort(() => Math.random() - 0.5);
 }
 
-// Initial settings update to handle URL parameters on page load
 window.onload = function () {
-    // Check if the game is already started
     if (mainContainer.classList.contains('hidden')) {
         updateSettings();
     }
 };
 
-// New function to update the progress bar and move Nyan Cat
 function updateProgressBar() {
     if (goal && goal > 0) {
         let progressPercentage = (score / goal) * 100;
         if (progressPercentage > 100) progressPercentage = 100;
 
-        // Move Nyan Cat along the progress bar
-        nyanCat.style.left = `calc(${progressPercentage}% - 30px)`; // Adjust the offset as needed
-
-        // Adjust the width of the rainbow fill
+        nyanCat.style.left = `calc(${progressPercentage}% - 30px)`;
         rainbowFill.style.width = `${progressPercentage}%`;
     }
 }
 
-
-// Function to show the Nyan Cat celebration when the goal is reached
 function showGoalVideo() {
-    // Create audio element for Nyan Cat song
     const nyanAudio = new Audio('https://raw.githubusercontent.com/samperet/PopMath/87865aed60c127caa36179ed6005a8c4d241e8d9/Nyan%20Cat.mp3');
-    
-    // Create container for Nyan Cat animation
     const nyanContainer = document.createElement('div');
     nyanContainer.id = 'nyan-celebration';
     nyanContainer.style.position = 'fixed';
@@ -342,14 +315,12 @@ function showGoalVideo() {
     nyanContainer.style.overflow = 'hidden';
     nyanContainer.style.backgroundColor = 'rgba(0,0,0,0.5)';
 
-    // Create Nyan Cat image
     const nyanCatImg = document.createElement('img');
     nyanCatImg.src = 'https://raw.githubusercontent.com/samperet/PopMath/87865aed60c127caa36179ed6005a8c4d241e8d9/Nyan%20Cat.gif';
     nyanCatImg.style.position = 'absolute';
     nyanCatImg.style.width = '200px';
     nyanCatImg.style.height = 'auto';
 
-    // Create play button
     const playBtn = document.createElement('button');
     playBtn.textContent = 'Play Nyan Cat Music';
     playBtn.style.position = 'fixed';
@@ -360,47 +331,34 @@ function showGoalVideo() {
     playBtn.style.padding = '10px 20px';
     playBtn.style.fontSize = '18px';
 
-    // Add Nyan Cat to container
     nyanContainer.appendChild(nyanCatImg);
     nyanContainer.appendChild(playBtn);
     document.body.appendChild(nyanContainer);
 
-    // Play button click handler
     playBtn.addEventListener('click', () => {
-        // Try to play audio
         nyanAudio.play()
             .then(() => {
-                // Audio played successfully
                 playBtn.style.display = 'none';
                 
-                // Animate Nyan Cat
                 function animateNyanCat() {
                     const maxWidth = window.innerWidth - 200;
                     const maxHeight = window.innerHeight - 100;
-
-                    // Random start position
                     nyanCatImg.style.left = '0px';
                     nyanCatImg.style.top = `${Math.random() * maxHeight}px`;
 
-                    // Animation function
                     function move() {
                         const currentLeft = parseInt(nyanCatImg.style.left);
                         if (currentLeft < maxWidth) {
                             nyanCatImg.style.left = `${currentLeft + 5}px`;
                             requestAnimationFrame(move);
                         } else {
-                            // Restart from left side with new vertical position
                             nyanCatImg.style.left = '0px';
                             nyanCatImg.style.top = `${Math.random() * maxHeight}px`;
                             requestAnimationFrame(move);
                         }
                     }
-
-                    // Start the animation
                     move();
                 }
-
-                // Start Nyan Cat animation
                 animateNyanCat();
             })
             .catch((error) => {
@@ -409,7 +367,6 @@ function showGoalVideo() {
             });
     });
 
-    // Create close button
     const closeBtn = document.createElement('button');
     closeBtn.textContent = 'Close';
     closeBtn.style.position = 'fixed';
@@ -418,20 +375,12 @@ function showGoalVideo() {
     closeBtn.style.zIndex = '1001';
     
     closeBtn.addEventListener('click', () => {
-        // Stop audio
         nyanAudio.pause();
         nyanAudio.currentTime = 0;
-        
-        // Remove Nyan Cat container
         nyanContainer.remove();
         closeBtn.remove();
-
-        // Reset game
         resetGame();
     });
 
-    // Add close button to body
     document.body.appendChild(closeBtn);
 }
-
-// [Rest of the previous script remains the same]
