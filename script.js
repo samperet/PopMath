@@ -323,8 +323,6 @@ function updateProgressBar() {
     }
 }
 
-// Function to show the video when the goal is reached
-// [Previous script remains the same up to showGoalVideo function]
 
 // Function to show the Nyan Cat celebration when the goal is reached
 function showGoalVideo() {
@@ -342,6 +340,7 @@ function showGoalVideo() {
     nyanContainer.style.zIndex = '1000';
     nyanContainer.style.pointerEvents = 'none';
     nyanContainer.style.overflow = 'hidden';
+    nyanContainer.style.backgroundColor = 'rgba(0,0,0,0.5)';
 
     // Create Nyan Cat image
     const nyanCatImg = document.createElement('img');
@@ -350,42 +349,65 @@ function showGoalVideo() {
     nyanCatImg.style.width = '200px';
     nyanCatImg.style.height = 'auto';
 
+    // Create play button
+    const playBtn = document.createElement('button');
+    playBtn.textContent = 'Play Nyan Cat Music';
+    playBtn.style.position = 'fixed';
+    playBtn.style.top = '50%';
+    playBtn.style.left = '50%';
+    playBtn.style.transform = 'translate(-50%, -50%)';
+    playBtn.style.zIndex = '1001';
+    playBtn.style.padding = '10px 20px';
+    playBtn.style.fontSize = '18px';
+
     // Add Nyan Cat to container
     nyanContainer.appendChild(nyanCatImg);
+    nyanContainer.appendChild(playBtn);
     document.body.appendChild(nyanContainer);
 
-    // Play Nyan Cat audio
-    nyanAudio.play();
+    // Play button click handler
+    playBtn.addEventListener('click', () => {
+        // Try to play audio
+        nyanAudio.play()
+            .then(() => {
+                // Audio played successfully
+                playBtn.style.display = 'none';
+                
+                // Animate Nyan Cat
+                function animateNyanCat() {
+                    const maxWidth = window.innerWidth - 200;
+                    const maxHeight = window.innerHeight - 100;
 
-    // Animate Nyan Cat
-    function animateNyanCat() {
-        const maxWidth = window.innerWidth - 200;
-        const maxHeight = window.innerHeight - 100;
+                    // Random start position
+                    nyanCatImg.style.left = '0px';
+                    nyanCatImg.style.top = `${Math.random() * maxHeight}px`;
 
-        // Random start position
-        nyanCatImg.style.left = '0px';
-        nyanCatImg.style.top = `${Math.random() * maxHeight}px`;
+                    // Animation function
+                    function move() {
+                        const currentLeft = parseInt(nyanCatImg.style.left);
+                        if (currentLeft < maxWidth) {
+                            nyanCatImg.style.left = `${currentLeft + 5}px`;
+                            requestAnimationFrame(move);
+                        } else {
+                            // Restart from left side with new vertical position
+                            nyanCatImg.style.left = '0px';
+                            nyanCatImg.style.top = `${Math.random() * maxHeight}px`;
+                            requestAnimationFrame(move);
+                        }
+                    }
 
-        // Animation function
-        function move() {
-            const currentLeft = parseInt(nyanCatImg.style.left);
-            if (currentLeft < maxWidth) {
-                nyanCatImg.style.left = `${currentLeft + 5}px`;
-                requestAnimationFrame(move);
-            } else {
-                // Restart from left side with new vertical position
-                nyanCatImg.style.left = '0px';
-                nyanCatImg.style.top = `${Math.random() * maxHeight}px`;
-                requestAnimationFrame(move);
-            }
-        }
+                    // Start the animation
+                    move();
+                }
 
-        // Start the animation
-        move();
-    }
-
-    // Start Nyan Cat animation
-    animateNyanCat();
+                // Start Nyan Cat animation
+                animateNyanCat();
+            })
+            .catch((error) => {
+                console.error('Error playing audio:', error);
+                alert('Unable to play music. This might be due to browser autoplay restrictions.');
+            });
+    });
 
     // Create close button
     const closeBtn = document.createElement('button');
