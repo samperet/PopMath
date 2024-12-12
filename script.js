@@ -27,6 +27,10 @@ let currentQuestion;
 let includeNegatives = false;
 let goal = 10; // Default goal is 10
 
+// To keep track of the animated cat and audio, so we can remove them on reset
+let nyanImgElement = null;
+let nyanAudioElement = null;
+
 // Event Listeners
 enterBtn.addEventListener('click', enterApp);
 settingsIcon.addEventListener('click', toggleSettings);
@@ -35,9 +39,9 @@ settingsOkBtn.addEventListener('click', closeSettings);
 function enterApp() {
     splashDiv.classList.add('hidden');
     mainContainer.classList.remove('hidden');
-    updateSettings(); // Ensure settings are up to date
+    updateSettings();
     resetGame();
-    generateQuestion(); // Start the game
+    generateQuestion();
 }
 
 function toggleSettings() {
@@ -101,6 +105,16 @@ function updateSettings() {
 }
 
 function resetGame() {
+    // Remove nyan cat and audio if present
+    if (nyanImgElement) {
+        document.body.removeChild(nyanImgElement);
+        nyanImgElement = null;
+    }
+    if (nyanAudioElement) {
+        document.body.removeChild(nyanAudioElement);
+        nyanAudioElement = null;
+    }
+
     score = 0;
     scoreSpan.textContent = score;
     updateProgressBar();
@@ -146,13 +160,14 @@ function generateQuestion() {
         choicesDiv.appendChild(btn);
     });
 }
-
 function selectAnswer(e) {
     if (e.target.textContent == currentQuestion.correctAnswer) {
         score++;
         scoreSpan.textContent = score;
         correctSound.play();
-        e.target.style.backgroundColor = 'green'; // Green for correct
+
+        // Light green for correct
+        e.target.style.backgroundColor = '#c9e5c9'; 
 
         // Confetti effect
         confetti({
@@ -170,7 +185,9 @@ function selectAnswer(e) {
         }
     } else {
         incorrectSound.play();
-        e.target.style.backgroundColor = 'red'; // Red for wrong
+
+        // Light red for wrong
+        e.target.style.backgroundColor = '#e38c7f'; 
         e.target.disabled = true;
     }
 }
@@ -210,25 +227,56 @@ function animateNyanCat() {
     audio.loop = true;
     document.body.appendChild(audio);
 
-    let startTime = null;
+    // Store references so we can remove them on reset
+    nyanImgElement = nyanImg;
+    nyanAudioElement = audio;
 
-    function step(timestamp) {
-        if (!startTime) startTime = timestamp;
-        const elapsed = timestamp - startTime;
-        const x = (elapsed / 10) % window.innerWidth;
-        const y = 100 + 50 * Math.sin((elapsed / 500) * Math.PI);
+    let direction = 1; // 1 = moving right, -1 = moving left
+    let pos = 0; 
+    const catWidth = 150;
+    const speed = 2; 
 
-        nyanImg.style.left = `${x}px`;
-        nyanImg.style.top = `${y}px`;
+    nyanImg.style.transform = 'scaleX(1)';
 
-        if (elapsed < 20000) {
-            requestAnimationFrame(step);
-        } else {
-            document.body.removeChild(nyanImg);
-            document.body.removeChild(audio);
-            resetGame();
+    function step() {
+        pos += speed * direction;
+        nyanImg.style.left = `${pos}px`;
+
+        // Vertical bobbing effect
+        const time = performance.now();
+        nyanImg.style.top = `${100 + 50 * Math.sin(time / 500)}px`;
+
+        // Check boundaries
+        if (pos >= window.innerWidth - catWidth && direction === 1) {
+            direction = -1;
+            nyanImg.style.transform = 'scaleX(-1)';
+        } else if (pos <= 0 && direction === -1) {
+            direction = 1;
+            nyanImg.style.transform = 'scaleX(1)';
         }
+
+        requestAnimationFrame(step);
     }
 
     requestAnimationFrame(step);
 }
+
+// Only reset when clicking outside main interactive elements
+document.addEventListener('click', (e) => {
+    // Conditions:
+    // - Not an answer choice button
+    // - Not the settings icon
+    // - Not the enter button
+    // - Not inside the settings dialog
+    // - Not inside the main container
+    if (
+        !e.target.classList.contains('choice-btn') &&
+        e.target !== settingsIcon &&
+        e.target !== enterBtn &&
+        !settingsDiv.contains(e.target) &&
+        !mainContainer.contains(e.target)
+    ) {
+        resetGame();
+        generateQuestion();
+    }
+});
