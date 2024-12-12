@@ -1,3 +1,9 @@
+let score = 0; // Ensure this is defined somewhere in your code
+let goal = 10; // Example goal
+let nyanCat = document.getElementById('nyan-cat'); // Adjust element IDs as needed
+let rainbowFill = document.getElementById('rainbow-fill');
+let celebrationTriggered = false; // To ensure the celebration is only triggered once
+
 function updateProgressBar() {
     if (goal && goal > 0) {
         let progressPercentage = (score / goal) * 100;
@@ -9,8 +15,13 @@ function updateProgressBar() {
         if (rainbowFill) {
             rainbowFill.style.width = `${progressPercentage}%`;
         }
+
+        // Check if goal has been reached or exceeded
+        if (score >= goal && !celebrationTriggered) {
+            celebrationTriggered = true;
+            showGoalVideo();
+        }
     }
-}
 }
 
 function showGoalVideo() {
@@ -65,7 +76,7 @@ function showGoalVideo() {
         nyanAudio.currentTime = 0;
         nyanContainer.remove();
         closeBtn.remove();
-        resetGame();
+        resetGame(); // Ensure this function exists and resets score/game as desired
     });
 
     document.body.appendChild(closeBtn);
