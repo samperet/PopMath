@@ -30,7 +30,7 @@ let goal = 10; // Default goal is 10
 // Event Listeners
 enterBtn.addEventListener('click', enterApp);
 settingsIcon.addEventListener('click', toggleSettings);
-settingsOkBtn.addEventListener('click', closeSettings); 
+settingsOkBtn.addEventListener('click', closeSettings);
 
 function enterApp() {
     splashDiv.classList.add('hidden');
@@ -50,7 +50,6 @@ function closeSettings() {
 }
 
 function updateSettings() {
-    // Check if URL parameters exist and override settings
     const urlParams = new URLSearchParams(window.location.search);
 
     // Low Number
@@ -78,30 +77,10 @@ function updateSettings() {
     }
 
     // Question Types
-    if (urlParams.has('types')) {
-        questionTypes = [];
-        const types = urlParams.get('types').split(',');
-        const validTypes = ['addition', 'subtraction', 'multiplication', 'division'];
-        types.forEach(type => {
-            if (validTypes.includes(type)) {
-                questionTypes.push(type);
-                document.getElementById(type).checked = true;
-            }
-        });
-        // Uncheck other types
-        validTypes.forEach(type => {
-            if (!questionTypes.includes(type)) {
-                document.getElementById(type).checked = false;
-            }
-        });
-    } else {
-        // Use user-selected settings
-        questionTypes = [];
-        if (document.getElementById('addition').checked) questionTypes.push('addition');
-        if (document.getElementById('subtraction').checked) questionTypes.push('subtraction');
-        if (document.getElementById('multiplication').checked) questionTypes.push('multiplication');
-        if (document.getElementById('division').checked) questionTypes.push('division');
-    }
+    questionTypes = [];
+    ['addition', 'subtraction', 'multiplication', 'division'].forEach(type => {
+        if (document.getElementById(type).checked) questionTypes.push(type);
+    });
 
     if (questionTypes.length === 0) {
         alert('Please select at least one question type.');
@@ -110,20 +89,9 @@ function updateSettings() {
     }
 
     // Goal
-    let userGoal = null;
-    if (urlParams.has('goal')) {
-        userGoal = parseInt(urlParams.get('goal'));
-        document.getElementById('goal').value = userGoal;
-    } else {
-        const goalInput = document.getElementById('goal').value;
-        userGoal = goalInput ? parseInt(goalInput) : null;
-    }
-
-    if (userGoal && userGoal > 0) {
+    let userGoal = parseInt(document.getElementById('goal').value) || 10;
+    if (userGoal > 0) {
         goal = userGoal;
-    }
-
-    if (goal && goal > 0) {
         progressContainer.classList.remove('hidden');
         goalValueSpan.textContent = goal;
         updateProgressBar();
@@ -135,34 +103,16 @@ function updateSettings() {
 function resetGame() {
     score = 0;
     scoreSpan.textContent = score;
-    if (goal && goal > 0) {
-        updateProgressBar();
-    }
+    updateProgressBar();
 }
 
 function generateQuestion() {
     choicesDiv.innerHTML = '';
 
-    // Generate random numbers
     let num1 = getRandomInt(low, high, includeNegatives);
     let num2 = getRandomInt(low, high, includeNegatives);
     let operation = questionTypes[Math.floor(Math.random() * questionTypes.length)];
     let questionText, correctAnswer;
-
-    // Adjust numbers if negatives not included
-    if (!includeNegatives) {
-        switch (operation) {
-            case 'subtraction':
-                if (num1 < num2) {
-                    [num1, num2] = [num2, num1]; // Swap values
-                }
-                break;
-            case 'division':
-                num2 = num2 === 0 ? 1 : num2; 
-                num1 = num1 * num2;
-                break;
-        }
-    }
 
     switch (operation) {
         case 'addition':
@@ -178,31 +128,15 @@ function generateQuestion() {
             correctAnswer = num1 * num2;
             break;
         case 'division':
-            while (num2 === 0) {
-                num2 = getRandomInt(low, high, includeNegatives);
-            }
-            correctAnswer = num1 / num2;
+            if (num2 === 0) num2 = 1;
             questionText = `${num1} ÷ ${num2}`;
-            if (!Number.isInteger(correctAnswer)) {
-                correctAnswer = correctAnswer.toFixed(2);
-            }
+            correctAnswer = (num1 / num2).toFixed(2);
             break;
     }
 
-    // If negatives not allowed and correctAnswer < 0, regenerate
-    if (!includeNegatives && correctAnswer < 0) {
-        generateQuestion();
-        return;
-    }
-
-    currentQuestion = {
-        questionText,
-        correctAnswer
-    };
-
+    currentQuestion = { questionText, correctAnswer };
     questionDiv.textContent = questionText;
 
-    // Generate choices
     let choices = generateChoices(correctAnswer);
     choices.forEach(choice => {
         const btn = document.createElement('button');
@@ -214,158 +148,87 @@ function generateQuestion() {
 }
 
 function selectAnswer(e) {
-    let selectedAnswer = e.target.textContent;
-
-    if (selectedAnswer == currentQuestion.correctAnswer) {
-        // Correct answer
-        e.target.style.backgroundColor = '#c8e6c9'; // green for correct
+    if (e.target.textContent == currentQuestion.correctAnswer) {
         score++;
         scoreSpan.textContent = score;
         correctSound.play();
-
-        // Update progress bar if goal is set
-        if (goal && goal > 0) {
-            updateProgressBar();
-            // Check if goal is reached
-            if (score >= goal) {
-                showGoalVideo();
-                return;
-            }
-        }
+        e.target.style.backgroundColor = 'green'; // Green for correct
 
         // Confetti effect
         confetti({
             particleCount: 100,
             spread: 70,
-            origin: { y: 0.6 }
+            origin: { y: 0.6 },
         });
 
-        // Automatically go to the next question after a brief delay
-        setTimeout(generateQuestion, 1000);
+        updateProgressBar();
+
+        if (score >= goal) {
+            animateNyanCat();
+        } else {
+            setTimeout(generateQuestion, 500); // Slight delay to show effect
+        }
     } else {
-        // Wrong answer
-        e.target.style.backgroundColor = '#ffccbc'; // red for wrong
-        e.target.disabled = true; // disable this wrong choice only
         incorrectSound.play();
-        // The user can continue selecting other answers until correct
+        e.target.style.backgroundColor = 'red'; // Red for wrong
+        e.target.disabled = true;
     }
+}
+
+function getRandomInt(min, max, includeNegatives) {
+    let value = Math.floor(Math.random() * (max - min + 1) + min);
+    return includeNegatives && Math.random() < 0.5 ? -value : value;
 }
 
 function generateChoices(correctAnswer) {
     let choices = [correctAnswer];
     while (choices.length < 3) {
-        let wrongAnswer = generateMisconception(correctAnswer);
-        if (
-            !choices.includes(wrongAnswer) &&
-            (!(!includeNegatives && wrongAnswer < 0))
-        ) {
-            choices.push(wrongAnswer);
-        }
+        let wrongAnswer = correctAnswer + Math.floor(Math.random() * 10 - 5);
+        if (!choices.includes(wrongAnswer)) choices.push(wrongAnswer);
     }
-    return shuffleArray(choices);
+    return choices.sort(() => Math.random() - 0.5);
 }
 
-function generateMisconception(correctAnswer) {
-    let errorMargin = getRandomInt(1, 5, false);
-    let wrongAnswer;
-    if (typeof correctAnswer === 'number') {
-        wrongAnswer =
-            parseFloat(correctAnswer) +
-            errorMargin * (Math.random() < 0.5 ? -1 : 1);
-        wrongAnswer = Number.isInteger(correctAnswer)
-            ? wrongAnswer
-            : parseFloat(wrongAnswer.toFixed(2));
-    } else {
-        wrongAnswer =
-            parseInt(correctAnswer) +
-            errorMargin * (Math.random() < 0.5 ? -1 : 1);
-    }
-    return wrongAnswer.toString();
-}
-
-function getRandomInt(min, max, includeNegatives) {
-    let value = Math.floor(Math.random() * (max - min + 1) + min);
-    if (includeNegatives && Math.random() < 0.5) {
-        value = -value;
-    }
-    return value;
-}
-
-function shuffleArray(array) {
-    return array.sort(() => Math.random() - 0.5);
-}
-
-// Initial settings update to handle URL parameters on page load
-window.onload = function () {
-    if (mainContainer.classList.contains('hidden')) {
-        updateSettings();
-    }
-};
-
-// New function to update the progress bar and move Nyan Cat
 function updateProgressBar() {
-    if (goal && goal > 0) {
-        let progressPercentage = (score / goal) * 100;
-        if (progressPercentage > 100) progressPercentage = 100;
-
-        nyanCat.style.left = `calc(${progressPercentage}% - 30px)`;
-        rainbowFill.style.width = `${progressPercentage}%`;
-    }
+    let progressPercentage = (score / goal) * 100;
+    if (progressPercentage > 100) progressPercentage = 100;
+    nyanCat.style.left = `calc(${progressPercentage}% - 30px)`;
+    rainbowFill.style.width = `${progressPercentage}%`;
 }
 
-// Modified showGoalVideo function: animate Nyan Cat in a wave across the screen
-function showGoalVideo() {
-    // Create and play the Nyan Cat audio
+function animateNyanCat() {
+    const nyanImg = document.createElement('img');
+    nyanImg.src = 'Nyan Cat.gif';
+    nyanImg.style.position = 'absolute';
+    nyanImg.style.width = '150px';
+    nyanImg.style.zIndex = '1000';
+    document.body.appendChild(nyanImg);
+
     const audio = document.createElement('audio');
-    audio.src = 'Nyan Cat.mp3'; // Path to your Nyan Cat MP3
+    audio.src = 'https://archive.org/download/nyannyannyan/NyanCatoriginal.mp3';
     audio.autoplay = true;
     audio.loop = true;
     document.body.appendChild(audio);
 
-    // Create Nyan Cat image
-    const nyanImg = document.createElement('img');
-    nyanImg.src = 'Nyan Cat.gif'; // Path to your Nyan Cat GIF
-    nyanImg.style.position = 'fixed';
-    nyanImg.style.width = '150px'; 
-    nyanImg.style.zIndex = '1000';
-    document.body.appendChild(nyanImg);
+    let startTime = null;
 
-    // Wave animation parameters
-    const animationDuration = 10000; // 10 seconds
-    const startTime = performance.now();
-    const amplitude = 100; // Height of the wave
-    const frequency = 0.005; // Wave frequency
-    const speed = 0.3; // Horizontal speed
-    
-    const screenWidth = window.innerWidth;
-    const screenHeight = window.innerHeight;
-    const centerY = screenHeight / 2 - 75; // Vertical center (subtract half of cat height)
+    function step(timestamp) {
+        if (!startTime) startTime = timestamp;
+        const elapsed = timestamp - startTime;
+        const x = (elapsed / 10) % window.innerWidth;
+        const y = 100 + 50 * Math.sin((elapsed / 500) * Math.PI);
 
-    function animate(time) {
-        const elapsed = time - startTime;
-        if (elapsed < animationDuration) {
-            const x = speed * elapsed;
-            const y = centerY + amplitude * Math.sin(frequency * elapsed);
-            nyanImg.style.left = x + 'px';
-            nyanImg.style.top = y + 'px';
+        nyanImg.style.left = `${x}px`;
+        nyanImg.style.top = `${y}px`;
 
-            requestAnimationFrame(animate);
+        if (elapsed < 20000) {
+            requestAnimationFrame(step);
         } else {
-            // After 10 seconds, remove the cat, audio, and reset game
             document.body.removeChild(nyanImg);
             document.body.removeChild(audio);
             resetGame();
         }
     }
 
-    requestAnimationFrame(animate);
+    requestAnimationFrame(step);
 }
-
-// Add CSS for modal or any other necessary elements in JavaScript (since we cannot edit CSS externally)
-const style = document.createElement('style');
-style.innerHTML = `
-/* Modal styles and other styles if needed */
-/* In this version, we are not using the modal for the goal video anymore, 
-   but leaving this here for reference if needed. */
-`;
-document.head.appendChild(style);
