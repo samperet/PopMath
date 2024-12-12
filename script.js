@@ -61,7 +61,7 @@ function updateSettings() {
         if (document.getElementById(type).checked) questionTypes.push(type);
     });
 
-    goal = urlParams.has('goal') ? parseInt(urlParams.get('goal')) : parseInt(document.getElementById('goal').value) || 10;
+    goal = 10;
     goalValueSpan.textContent = goal;
     progressContainer.classList.toggle('hidden', !(goal && goal > 0));
     updateProgressBar();
