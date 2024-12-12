@@ -205,30 +205,8 @@ function showGoalVideo() {
     nyanCatImg.style.width = '200px';
     nyanCatImg.style.height = 'auto';
 
-    const playBtn = document.createElement('button');
-    playBtn.textContent = 'Play Nyan Cat Music';
-    playBtn.style.position = 'fixed';
-    playBtn.style.top = '50%';
-    playBtn.style.left = '50%';
-    playBtn.style.transform = 'translate(-50%, -50%)';
-    playBtn.style.zIndex = '1001';
-    playBtn.style.padding = '10px 20px';
-    playBtn.style.fontSize = '18px';
-
     nyanContainer.appendChild(nyanCatImg);
-    nyanContainer.appendChild(playBtn);
     document.body.appendChild(nyanContainer);
-
-    playBtn.addEventListener('click', () => {
-        nyanAudio.play()
-            .then(() => {
-                playBtn.style.display = 'none';
-            })
-            .catch(error => {
-                console.error('Error playing audio:', error);
-                alert('Unable to play music. This might be due to browser autoplay restrictions.');
-            });
-    });
 
     const closeBtn = document.createElement('button');
     closeBtn.textContent = 'Close';
