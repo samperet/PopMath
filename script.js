@@ -324,84 +324,92 @@ function updateProgressBar() {
 }
 
 // Function to show the video when the goal is reached
+// [Previous script remains the same up to showGoalVideo function]
+
+// Function to show the Nyan Cat celebration when the goal is reached
 function showGoalVideo() {
-    // Create a modal to display the video
-    const modal = document.createElement('div');
-    modal.id = 'video-modal';
-    modal.classList.add('modal');
+    // Create audio element for Nyan Cat song
+    const nyanAudio = new Audio('https://raw.githubusercontent.com/samperet/PopMath/87865aed60c127caa36179ed6005a8c4d241e8d9/Nyan%20Cat.mp3');
+    
+    // Create container for Nyan Cat animation
+    const nyanContainer = document.createElement('div');
+    nyanContainer.id = 'nyan-celebration';
+    nyanContainer.style.position = 'fixed';
+    nyanContainer.style.top = '0';
+    nyanContainer.style.left = '0';
+    nyanContainer.style.width = '100vw';
+    nyanContainer.style.height = '100vh';
+    nyanContainer.style.zIndex = '1000';
+    nyanContainer.style.pointerEvents = 'none';
+    nyanContainer.style.overflow = 'hidden';
 
-    // Modal content
-    const modalContent = document.createElement('div');
-    modalContent.classList.add('modal-content');
+    // Create Nyan Cat image
+    const nyanCatImg = document.createElement('img');
+    nyanCatImg.src = 'https://raw.githubusercontent.com/samperet/PopMath/87865aed60c127caa36179ed6005a8c4d241e8d9/Nyan%20Cat.gif';
+    nyanCatImg.style.position = 'absolute';
+    nyanCatImg.style.width = '200px';
+    nyanCatImg.style.height = 'auto';
 
-    // Close button
-    const closeBtn = document.createElement('span');
-    closeBtn.classList.add('close-button');
-    closeBtn.innerHTML = '&times;';
-    closeBtn.onclick = () => {
-        modal.remove();
+    // Add Nyan Cat to container
+    nyanContainer.appendChild(nyanCatImg);
+    document.body.appendChild(nyanContainer);
+
+    // Play Nyan Cat audio
+    nyanAudio.play();
+
+    // Animate Nyan Cat
+    function animateNyanCat() {
+        const maxWidth = window.innerWidth - 200;
+        const maxHeight = window.innerHeight - 100;
+
+        // Random start position
+        nyanCatImg.style.left = '0px';
+        nyanCatImg.style.top = `${Math.random() * maxHeight}px`;
+
+        // Animation function
+        function move() {
+            const currentLeft = parseInt(nyanCatImg.style.left);
+            if (currentLeft < maxWidth) {
+                nyanCatImg.style.left = `${currentLeft + 5}px`;
+                requestAnimationFrame(move);
+            } else {
+                // Restart from left side with new vertical position
+                nyanCatImg.style.left = '0px';
+                nyanCatImg.style.top = `${Math.random() * maxHeight}px`;
+                requestAnimationFrame(move);
+            }
+        }
+
+        // Start the animation
+        move();
+    }
+
+    // Start Nyan Cat animation
+    animateNyanCat();
+
+    // Create close button
+    const closeBtn = document.createElement('button');
+    closeBtn.textContent = 'Close';
+    closeBtn.style.position = 'fixed';
+    closeBtn.style.bottom = '20px';
+    closeBtn.style.right = '20px';
+    closeBtn.style.zIndex = '1001';
+    
+    closeBtn.addEventListener('click', () => {
+        // Stop audio
+        nyanAudio.pause();
+        nyanAudio.currentTime = 0;
+        
+        // Remove Nyan Cat container
+        nyanContainer.remove();
+        closeBtn.remove();
+
+        // Reset game
         resetGame();
-    };
+    });
 
-    // YouTube iframe
-    const iframe = document.createElement('iframe');
-    iframe.width = '560';
-    iframe.height = '315';
-    iframe.src = 'https://www.youtube.com/embed/2yJgwwDcgV8?autoplay=1';
-    iframe.title = 'YouTube video player';
-    iframe.frameBorder = '0';
-    iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
-    iframe.allowFullscreen = true;
-
-    // Assemble modal
-    modalContent.appendChild(closeBtn);
-    modalContent.appendChild(iframe);
-    modal.appendChild(modalContent);
-    document.body.appendChild(modal);
+    // Add close button to body
+    document.body.appendChild(closeBtn);
 }
 
-// Add CSS for modal in JavaScript (since we cannot edit CSS here)
-const style = document.createElement('style');
-style.innerHTML = `
-/* Modal styles */
-.modal {
-    display: flex;
-    position: fixed;
-    z-index: 999;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    overflow: auto;
-    background-color: rgba(0,0,0,0.8);
-    justify-content: center;
-    align-items: center;
-}
-
-.modal-content {
-    position: relative;
-    background-color: #fefefe;
-    padding: 0;
-    border: 1px solid #888;
-    width: 90%;
-    max-width: 800px;
-}
-
-.close-button {
-    color: #aaa;
-    position: absolute;
-    top: 10px;
-    right: 25px;
-    font-size: 30px;
-    font-weight: bold;
-    cursor: pointer;
-}
-
-.close-button:hover,
-.close-button:focus {
-    color: black;
-    text-decoration: none;
-    cursor: pointer;
-}
-`;
-document.head.appendChild(style);
+// [Rest of the previous script remains the same]
