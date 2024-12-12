@@ -104,6 +104,30 @@ function updateSettings() {
     }
 }
 
+
+function resetGameOnBackgroundTap(event) {
+    // Check if the clicked/touched element is NOT one of these:
+    // - An answer choice button
+    // - The settings icon
+    // - The enter button
+    // - Inside the settings dialog
+    // - Inside the main container
+    if (
+        !event.target.classList.contains('choice-btn') &&
+        event.target !== settingsIcon &&
+        event.target !== enterBtn &&
+        !settingsDiv.contains(event.target) &&
+        !mainContainer.contains(event.target)
+    ) {
+        resetGame();
+        generateQuestion();
+    }
+}
+
+// Add both click and touchstart listeners
+document.addEventListener('click', resetGameOnBackgroundTap);
+document.addEventListener('touchstart', resetGameOnBackgroundTap);
+
 function resetGame() {
     // Remove nyan cat and audio if present
     if (nyanImgElement) {
@@ -261,22 +285,4 @@ function animateNyanCat() {
     requestAnimationFrame(step);
 }
 
-// Only reset when clicking outside main interactive elements
-document.addEventListener('click', (e) => {
-    // Conditions:
-    // - Not an answer choice button
-    // - Not the settings icon
-    // - Not the enter button
-    // - Not inside the settings dialog
-    // - Not inside the main container
-    if (
-        !e.target.classList.contains('choice-btn') &&
-        e.target !== settingsIcon &&
-        e.target !== enterBtn &&
-        !settingsDiv.contains(e.target) &&
-        !mainContainer.contains(e.target)
-    ) {
-        resetGame();
-        generateQuestion();
-    }
-});
+
