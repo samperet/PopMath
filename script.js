@@ -31,6 +31,9 @@ let goal = 10; // Default goal is 10
 let nyanImgElement = null;
 let nyanAudioElement = null;
 
+// Flag to indicate if the game has finished (nyan cat animation playing)
+let gameFinished = false;
+
 // Event Listeners
 enterBtn.addEventListener('click', enterApp);
 settingsIcon.addEventListener('click', toggleSettings);
@@ -106,12 +109,15 @@ function updateSettings() {
 
 
 function resetGameOnBackgroundTap(event) {
-    // Check if the clicked/touched element is NOT one of these:
-    // - An answer choice button
-    // - The settings icon
-    // - The enter button
-    // - Inside the settings dialog
-    // - Inside the main container
+    // If the game is finished (nyan cat playing), a tap ends the animation and resets.
+    if (gameFinished) {
+        endNyanCatAnimation();
+        resetGame();
+        generateQuestion();
+        return;
+    }
+
+    // If the game is not finished, check if we tapped outside the main elements
     if (
         !event.target.classList.contains('choice-btn') &&
         event.target !== settingsIcon &&
@@ -142,6 +148,7 @@ function resetGame() {
     score = 0;
     scoreSpan.textContent = score;
     updateProgressBar();
+    gameFinished = false;
 }
 
 function generateQuestion() {
@@ -184,6 +191,7 @@ function generateQuestion() {
         choicesDiv.appendChild(btn);
     });
 }
+
 function selectAnswer(e) {
     if (e.target.textContent == currentQuestion.correctAnswer) {
         score++;
@@ -255,6 +263,9 @@ function animateNyanCat() {
     nyanImgElement = nyanImg;
     nyanAudioElement = audio;
 
+    // Mark the game as finished
+    gameFinished = true;
+
     let direction = 1; // 1 = moving right, -1 = moving left
     let pos = 0; 
     const catWidth = 150;
@@ -285,4 +296,14 @@ function animateNyanCat() {
     requestAnimationFrame(step);
 }
 
-
+function endNyanCatAnimation() {
+    if (nyanImgElement) {
+        document.body.removeChild(nyanImgElement);
+        nyanImgElement = null;
+    }
+    if (nyanAudioElement) {
+        document.body.removeChild(nyanAudioElement);
+        nyanAudioElement = null;
+    }
+    // Now the cat and audio are removed
+}
