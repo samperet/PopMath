@@ -107,17 +107,11 @@ function updateSettings() {
     }
 }
 
-
+// Only reset game if not finished, to prevent clearing the nyan cat animation prematurely
 function resetGameOnBackgroundTap(event) {
-    // If the game is finished (nyan cat playing), a tap ends the animation and resets.
-    if (gameFinished) {
-        endNyanCatAnimation();
-        resetGame();
-        generateQuestion();
-        return;
-    }
+    // If the game is finished (nyan cat playing) don't reset on random background tap.
+    if (gameFinished) return;
 
-    // If the game is not finished, check if we tapped outside the main elements
     if (
         !event.target.classList.contains('choice-btn') &&
         event.target !== settingsIcon &&
@@ -130,7 +124,6 @@ function resetGameOnBackgroundTap(event) {
     }
 }
 
-// Add both click and touchstart listeners
 document.addEventListener('click', resetGameOnBackgroundTap);
 document.addEventListener('touchstart', resetGameOnBackgroundTap);
 
@@ -211,6 +204,7 @@ function selectAnswer(e) {
         updateProgressBar();
 
         if (score >= goal) {
+            // Show the nyan cat animation immediately
             animateNyanCat();
         } else {
             setTimeout(generateQuestion, 500); // Slight delay to show effect
@@ -247,8 +241,11 @@ function updateProgressBar() {
 
 function animateNyanCat() {
     const nyanImg = document.createElement('img');
-    nyanImg.src = 'Nyan Cat.gif';
-    nyanImg.style.position = 'absolute';
+    // Make sure this file name/path matches your actual image file
+    nyanImg.src = 'nyan-cat.gif';
+    nyanImg.style.position = 'fixed';
+    nyanImg.style.left = '0px';
+    nyanImg.style.top = '100px';
     nyanImg.style.width = '150px';
     nyanImg.style.zIndex = '1000';
     document.body.appendChild(nyanImg);
@@ -305,5 +302,4 @@ function endNyanCatAnimation() {
         document.body.removeChild(nyanAudioElement);
         nyanAudioElement = null;
     }
-    // Now the cat and audio are removed
 }
