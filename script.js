@@ -6,7 +6,6 @@ const settingsIcon = document.getElementById('settings-icon');
 const settingsDiv = document.getElementById('settings');
 const settingsOkBtn = document.getElementById('settings-ok-btn'); // New OK button
 const quizDiv = document.getElementById('quiz');
-const nextBtn = document.getElementById('next-btn');
 const questionDiv = document.getElementById('question');
 const choicesDiv = document.getElementById('choices');
 const scoreSpan = document.getElementById('score');
@@ -27,11 +26,12 @@ let currentQuestion;
 let includeNegatives = false;
 let goal = 10; // Default goal is 10
 
-// To keep track of the animated cat and audio, so we can remove them on reset
+// References for the nyan cat animation elements
 let nyanImgElement = null;
 let nyanAudioElement = null;
+let nyanAnimationFrameId = null;
 
-// Flag to indicate if the game has finished (nyan cat animation playing)
+// Flag to indicate if the game has finished
 let gameFinished = false;
 
 // Event Listeners
@@ -107,11 +107,16 @@ function updateSettings() {
     }
 }
 
-// Only reset game if not finished, to prevent clearing the nyan cat animation prematurely
 function resetGameOnBackgroundTap(event) {
-    // If the game is finished (nyan cat playing) don't reset on random background tap.
-    if (gameFinished) return;
+    // If the game is finished, stop the animation and reset the game on any tap
+    if (gameFinished) {
+        endNyanCatAnimation();
+        resetGame();
+        generateQuestion();
+        return;
+    }
 
+    // If the game is not finished, reset only if tapped outside main elements
     if (
         !event.target.classList.contains('choice-btn') &&
         event.target !== settingsIcon &&
@@ -124,6 +129,7 @@ function resetGameOnBackgroundTap(event) {
     }
 }
 
+// Add both click and touchstart listeners
 document.addEventListener('click', resetGameOnBackgroundTap);
 document.addEventListener('touchstart', resetGameOnBackgroundTap);
 
@@ -204,7 +210,6 @@ function selectAnswer(e) {
         updateProgressBar();
 
         if (score >= goal) {
-            // Show the nyan cat animation immediately
             animateNyanCat();
         } else {
             setTimeout(generateQuestion, 500); // Slight delay to show effect
@@ -241,8 +246,7 @@ function updateProgressBar() {
 
 function animateNyanCat() {
     const nyanImg = document.createElement('img');
-    // Make sure this file name/path matches your actual image file
-    nyanImg.src = 'nyan-cat.gif';
+    nyanImg.src = 'https://github.com/samperet/PopMath/blob/main/Nyan%20Cat.gif?raw=true';
     nyanImg.style.position = 'fixed';
     nyanImg.style.left = '0px';
     nyanImg.style.top = '100px';
@@ -287,13 +291,18 @@ function animateNyanCat() {
             nyanImg.style.transform = 'scaleX(1)';
         }
 
-        requestAnimationFrame(step);
+        nyanAnimationFrameId = requestAnimationFrame(step);
     }
 
-    requestAnimationFrame(step);
+    nyanAnimationFrameId = requestAnimationFrame(step);
 }
 
 function endNyanCatAnimation() {
+    if (nyanAnimationFrameId) {
+        cancelAnimationFrame(nyanAnimationFrameId);
+        nyanAnimationFrameId = null;
+    }
+
     if (nyanImgElement) {
         document.body.removeChild(nyanImgElement);
         nyanImgElement = null;
