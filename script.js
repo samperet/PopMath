@@ -170,7 +170,6 @@ function generateQuestion() {
             break;
         case 'division':
             if (num2 === 0) num2 = 1;
-            // Use a simple integer division for testing, or a rounded integer
             correctAnswer = Math.round(num1 / num2).toString();
             questionText = `${num1} ÷ ${num2}`;
             break;
