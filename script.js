@@ -224,7 +224,7 @@ function animateNyanCat() {
     nyanImg.style.top = '100px';
     nyanImg.style.width = '150px';
     nyanImg.style.zIndex = '1000';
-    document.body.appendChild(nyanImg);
+    document.body.appendChild(nyanImg); 
 
     const audio = document.createElement('audio');
     audio.src = 'https://archive.org/download/nyannyannyan/NyanCatoriginal.mp3';
