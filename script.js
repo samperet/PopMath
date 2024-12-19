@@ -4,33 +4,35 @@ const enterBtn = document.getElementById('enter-btn');
 const mainContainer = document.getElementById('main-container');
 const settingsIcon = document.getElementById('settings-icon');
 const settingsDiv = document.getElementById('settings');
-const settingsOkBtn = document.getElementById('settings-ok-btn'); 
+const settingsOkBtn = document.getElementById('settings-ok-btn'); // New OK button
 const quizDiv = document.getElementById('quiz');
+const nextBtn = document.getElementById('next-btn');
 const questionDiv = document.getElementById('question');
 const choicesDiv = document.getElementById('choices');
 const scoreSpan = document.getElementById('score');
 const correctSound = document.getElementById('correct-sound');
 const incorrectSound = document.getElementById('incorrect-sound');
 
-// Progress elements
+// New elements for progress bar
 const progressContainer = document.getElementById('progress-container');
 const nyanCat = document.getElementById('nyan-cat');
 const rainbowFill = document.getElementById('rainbow-fill');
 const goalValueSpan = document.getElementById('goal-value');
 
-// Default settings
 let low = 1,
-    high = 5,
+    high = 10,
     score = 0;
-let questionTypes = ['multiplication']; // Testing only multiplication initially
+let questionTypes = ['multiplication']; // Only multiplication by default
 let currentQuestion;
 let includeNegatives = false;
-let goal = 1; // Test with a small goal so we quickly see the animation
+let goal = 10; // Default goal is 10
 
-// Nyan Cat references
+// To keep track of the animated cat and audio
 let nyanImgElement = null;
 let nyanAudioElement = null;
 let nyanAnimationFrameId = null;
+
+// Flag to indicate if the game has finished (nyan cat animation playing)
 let gameFinished = false;
 
 // Event Listeners
@@ -56,15 +58,58 @@ function closeSettings() {
 }
 
 function updateSettings() {
-    // Normally you'd handle URL params and input fields here,
-    // but for now let's keep it simple for testing:
-    goalValueSpan.textContent = goal;
-    progressContainer.classList.remove('hidden');
-    updateProgressBar();
+    const urlParams = new URLSearchParams(window.location.search);
+
+    // Low Number
+    if (urlParams.has('low')) {
+        low = parseInt(urlParams.get('low'));
+        document.getElementById('low').value = low;
+    } else {
+        low = parseInt(document.getElementById('low').value);
+    }
+
+    // High Number
+    if (urlParams.has('high')) {
+        high = parseInt(urlParams.get('high'));
+        document.getElementById('high').value = high;
+    } else {
+        high = parseInt(document.getElementById('high').value);
+    }
+
+    // Include Negatives
+    if (urlParams.has('negatives')) {
+        includeNegatives = urlParams.get('negatives') === 'true';
+        document.getElementById('negatives').checked = includeNegatives;
+    } else {
+        includeNegatives = document.getElementById('negatives').checked;
+    }
+
+    // Question Types
+    questionTypes = [];
+    ['addition', 'subtraction', 'multiplication', 'division'].forEach(type => {
+        if (document.getElementById(type).checked) questionTypes.push(type);
+    });
+
+    if (questionTypes.length === 0) {
+        alert('Please select at least one question type.');
+        settingsDiv.classList.remove('hidden');
+        return;
+    }
+
+    // Goal
+    let userGoal = parseInt(document.getElementById('goal').value) || 10;
+    if (userGoal > 0) {
+        goal = userGoal;
+        progressContainer.classList.remove('hidden');
+        goalValueSpan.textContent = goal;
+        updateProgressBar();
+    } else {
+        progressContainer.classList.add('hidden');
+    }
 }
 
 function resetGameOnBackgroundTap(event) {
-    // If finished, stop animation and reset:
+    // If the game is finished (nyan cat playing), a tap ends the animation and resets.
     if (gameFinished) {
         endNyanCatAnimation();
         resetGame();
@@ -72,7 +117,7 @@ function resetGameOnBackgroundTap(event) {
         return;
     }
 
-    // If not finished, reset only if tapped outside main elements
+    // If the game is not finished, reset only if we tapped outside the main elements
     if (
         !event.target.classList.contains('choice-btn') &&
         event.target !== settingsIcon &&
@@ -85,10 +130,12 @@ function resetGameOnBackgroundTap(event) {
     }
 }
 
+// Add both click and touchstart listeners
 document.addEventListener('click', resetGameOnBackgroundTap);
 document.addEventListener('touchstart', resetGameOnBackgroundTap);
 
 function resetGame() {
+    // Remove nyan cat and audio if present
     if (nyanImgElement) {
         document.body.removeChild(nyanImgElement);
         nyanImgElement = null;
@@ -101,6 +148,7 @@ function resetGame() {
         cancelAnimationFrame(nyanAnimationFrameId);
         nyanAnimationFrameId = null;
     }
+
     score = 0;
     scoreSpan.textContent = score;
     updateProgressBar();
@@ -130,12 +178,14 @@ function generateQuestion() {
             break;
         case 'division':
             if (num2 === 0) num2 = 1;
-            // Create a float and round it
-            correctAnswer = Math.round((num1 / num2) * 100) / 100;
+            // Format answer to string with two decimals for consistency
+            correctAnswer = (num1 / num2).toFixed(2);
             questionText = `${num1} ÷ ${num2}`;
             break;
     }
 
+    // Convert correctAnswer to string if it's not already
+    correctAnswer = correctAnswer.toString();
     currentQuestion = { questionText, correctAnswer };
     questionDiv.textContent = questionText;
 
@@ -150,18 +200,16 @@ function generateQuestion() {
 }
 
 function selectAnswer(e) {
-    let selected = e.target.textContent;
-    // Convert both sides to number if possible (handles floats and integers)
-    let selectedVal = parseFloat(selected);
-    let correctVal = parseFloat(currentQuestion.correctAnswer);
-
-    if (selectedVal === correctVal) {
+    // Compare as strings
+    if (e.target.textContent == currentQuestion.correctAnswer) {
         score++;
         scoreSpan.textContent = score;
         correctSound.play();
+
+        // Light green for correct
         e.target.style.backgroundColor = '#c9e5c9'; 
 
-        // Try confetti but don't break if not available
+        // Confetti effect in a try-catch to avoid errors if confetti is not defined
         try {
             confetti({
                 particleCount: 100,
@@ -169,19 +217,20 @@ function selectAnswer(e) {
                 origin: { y: 0.6 },
             });
         } catch (err) {
-            console.log('Confetti not available:', err);
+            console.log('Confetti is not available:', err);
         }
 
         updateProgressBar();
 
         if (score >= goal) {
-            console.log("Goal reached! Starting Nyan Cat animation.");
             animateNyanCat();
         } else {
-            setTimeout(generateQuestion, 500);
+            setTimeout(generateQuestion, 500); // Slight delay to show effect
         }
     } else {
         incorrectSound.play();
+
+        // Light red for wrong
         e.target.style.backgroundColor = '#e38c7f'; 
         e.target.disabled = true;
     }
@@ -194,16 +243,18 @@ function getRandomInt(min, max, includeNegatives) {
 
 function generateChoices(correctAnswer) {
     let choices = [correctAnswer];
+    const correctVal = parseFloat(correctAnswer); // For generating distractors
     while (choices.length < 3) {
-        let offset = Math.floor(Math.random() * 10 - 5);
-        // If correctAnswer is a float, create another float
         let wrongAnswer;
-        if (Number.isInteger(correctAnswer)) {
-            wrongAnswer = correctAnswer + offset;
+        // If correct is a float (division), create float distractors
+        if (!Number.isInteger(correctVal)) {
+            let offset = (Math.random() * 2 - 1).toFixed(2); // random float offset
+            wrongAnswer = (correctVal + parseFloat(offset)).toFixed(2);
         } else {
-            // For floats, create a float offset
-            wrongAnswer = Math.round((correctAnswer + (offset / 10)) * 100) / 100;
+            let offset = Math.floor(Math.random() * 10 - 5);
+            wrongAnswer = (correctVal + offset).toString();
         }
+
         if (!choices.includes(wrongAnswer)) choices.push(wrongAnswer);
     }
     return choices.sort(() => Math.random() - 0.5);
@@ -224,7 +275,7 @@ function animateNyanCat() {
     nyanImg.style.top = '100px';
     nyanImg.style.width = '150px';
     nyanImg.style.zIndex = '1000';
-    document.body.appendChild(nyanImg); 
+    document.body.appendChild(nyanImg);
 
     const audio = document.createElement('audio');
     audio.src = 'https://archive.org/download/nyannyannyan/NyanCatoriginal.mp3';
@@ -232,11 +283,14 @@ function animateNyanCat() {
     audio.loop = true;
     document.body.appendChild(audio);
 
+    // Store references so we can remove them on reset
     nyanImgElement = nyanImg;
     nyanAudioElement = audio;
+
+    // Mark the game as finished
     gameFinished = true;
 
-    let direction = 1; 
+    let direction = 1; // 1 = moving right, -1 = moving left
     let pos = 0; 
     const catWidth = 150;
     const speed = 2; 
@@ -247,9 +301,11 @@ function animateNyanCat() {
         pos += speed * direction;
         nyanImg.style.left = `${pos}px`;
 
+        // Vertical bobbing effect
         const time = performance.now();
         nyanImg.style.top = `${100 + 50 * Math.sin(time / 500)}px`;
 
+        // Check boundaries
         if (pos >= window.innerWidth - catWidth && direction === 1) {
             direction = -1;
             nyanImg.style.transform = 'scaleX(-1)';
@@ -269,7 +325,6 @@ function endNyanCatAnimation() {
         cancelAnimationFrame(nyanAnimationFrameId);
         nyanAnimationFrameId = null;
     }
-
     if (nyanImgElement) {
         document.body.removeChild(nyanImgElement);
         nyanImgElement = null;
@@ -278,4 +333,5 @@ function endNyanCatAnimation() {
         document.body.removeChild(nyanAudioElement);
         nyanAudioElement = null;
     }
+    // Cat and audio removed, game can be reset now.
 }
